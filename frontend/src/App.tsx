@@ -1,8 +1,8 @@
+import { useEffect, useRef } from 'react'
 import './App.css'
 
 import { ChatComposer } from './components/ChatComposer'
 import { EmptyState } from './components/EmptyState'
-import { HtmlPreview } from './components/HtmlPreview'
 import { MessageList } from './components/MessageList'
 import { SuggestedActionTag } from './components/SuggestedActionTag'
 import { useChatSession } from './hooks/useChatSession'
@@ -27,6 +27,16 @@ function App() {
   } = useChatSession()
 
   const hasMessages = messages.length > 0
+  const scrollRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: 'smooth',
+      })
+    }
+  }, [messages, assistantIsThinking, htmlResult])
 
   return (
     <div className="app-shell">
@@ -63,9 +73,17 @@ function App() {
       {isReady && (
         <main className="chat-stage">
           <section className="chat-card">
-            <div className="chat-card__scroller">
+            <div className="chat-card__scroller" ref={scrollRef}>
               {hasMessages ? (
-                <MessageList messages={messages} assistantIsThinking={assistantIsThinking} />
+                <MessageList
+                  messages={messages}
+                  assistantIsThinking={assistantIsThinking}
+                  htmlResult={htmlResult}
+                  htmlPreview={htmlPreview}
+                  isLoadingPreview={isLoadingPreview}
+                  htmlPreviewError={htmlPreviewError}
+                  onRefreshPreview={retryPreview}
+                />
               ) : (
                 <div className="chat-placeholder">
                   <p>The agent is ready. Ask your first question to get started.</p>
@@ -73,15 +91,6 @@ function App() {
               )}
             </div>
             <SuggestedActionTag action={suggestedAction} />
-            {htmlResult && (
-              <HtmlPreview
-                result={htmlResult}
-                html={htmlPreview}
-                isLoading={isLoadingPreview}
-                error={htmlPreviewError}
-                onRetry={retryPreview}
-              />
-            )}
             <ChatComposer
               onSend={sendMessage}
               disabled={!isReady}

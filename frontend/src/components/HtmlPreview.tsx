@@ -50,7 +50,14 @@ export function HtmlPreview({ result, html, isLoading, error, onRetry }: HtmlPre
             srcDoc={html}
           />
         )}
-        {!isLoading && !html && !error && (
+        {!isLoading && !html && !error && previewUrl && (
+          <iframe
+            className="html-preview__frame"
+            title="Generated dashboard preview"
+            src={previewUrl}
+          />
+        )}
+        {!isLoading && !html && !error && !previewUrl && (
           <p className="html-preview__placeholder">
             Preview will appear here once available. Use the open button if nothing shows up.
           </p>

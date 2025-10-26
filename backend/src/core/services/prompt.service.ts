@@ -279,87 +279,366 @@ export class PromptService {
     question: string,
     plan: string,
   ): string {
-    return 'You are an expert front-end developer specializing in data visualization and dashboard interfaces.\n\n' +
-      'CONTEXT:\n\n' +
+    return 'You are an elite front-end developer and data visualization specialist with expertise in creating stunning, insight-driven dashboards.\n\n' +
+      '\n' +
+      'CONTEXT\n' +
+      '\n' +
       'Source File: ' + filename + '\n' +
       'User Question: "' + question + '"\n\n' +
-      'DASHBOARD PLAN TO IMPLEMENT:\n' +
+      'DASHBOARD PLAN:\n' +
       plan + '\n\n' +
-      'YOUR MISSION:\n' +
-      'Transform this plan into a production-ready, beautiful HTML dashboard that brings the data story to life.\n\n' +
-      'TECHNICAL REQUIREMENTS:\n\n' +
-      '1. STRUCTURE:\n' +
-      '   ✓ Complete HTML5 document with proper DOCTYPE\n' +
-      '   ✓ Semantic HTML (header, main, section, article, footer)\n' +
-      '   ✓ Meta tags: viewport, charset, description\n' +
-      '   ✓ Title: "[Question] - Data Dashboard"\n\n' +
-      '2. STYLING (CSS):\n' +
-      '   ✓ Modern, professional design following the plan\'s specifications\n' +
-      '   ✓ CSS Grid or Flexbox for responsive layout\n' +
-      '   ✓ CSS Variables for consistent theming:\n' +
-      '     --primary-color, --secondary-color, --accent-color\n' +
-      '     --bg-primary, --bg-secondary, --text-primary, --text-secondary\n' +
-      '     --shadow-sm, --shadow-md, --border-radius\n' +
-      '   ✓ Smooth transitions and hover effects (300ms ease)\n' +
-      '   ✓ Card-based components with subtle depth (box-shadow)\n' +
-      '   ✓ Typography scale: headers (24-32px), metrics (36-48px), body (14-16px)\n' +
-      '   ✓ Responsive breakpoints: desktop (>1024px), tablet (768-1023px), mobile (<767px)\n' +
-      '   ✓ Print styles: @media print with clean, ink-friendly layout\n\n' +
-      '3. DASHBOARD HEADER:\n' +
-      '   ✓ Title: User\'s question\n' +
-      '   ✓ Metadata bar: Source filename, generation timestamp\n' +
-      '   ✓ Optional: breadcrumb or navigation hint\n\n' +
-      '4. CONTENT IMPLEMENTATION:\n' +
-      '   Follow the plan\'s structure exactly:\n' +
-      '   ✓ Hero metrics section with large, prominent KPIs\n' +
-      '   ✓ Visualization grid matching the plan\'s layout\n' +
-      '   ✓ Proper hierarchy: h1 (dashboard title), h2 (section headers), h3 (chart titles)\n' +
-      '   ✓ Insights callout boxes with icons or visual emphasis\n' +
-      '   ✓ Legend and labels clearly visible\n' +
-      '   ✓ Data attribution footer\n\n' +
-      '5. VISUAL POLISH:\n' +
-      '   ✓ Gradient backgrounds (subtle, not overwhelming)\n' +
-      '   ✓ Icons for metrics (use Unicode symbols: ↑↓●◆★☆⚡)\n' +
-      '   ✓ Consistent spacing: 8px base unit (8, 16, 24, 32, 48, 64px)\n' +
-      '   ✓ Color contrast meeting WCAG AA standards (4.5:1 for text)\n' +
-      '   ✓ Hover states for interactive elements\n' +
-      '   ✓ Loading skeleton styles (if applicable)\n\n' +
-      '6. RESPONSIVE DESIGN:\n' +
-      '   ✓ Desktop: Multi-column grid, side-by-side visualizations\n' +
-      '   ✓ Tablet: 2-column layout, some stacking\n' +
-      '   ✓ Mobile: Single column, cards full-width, readable metrics\n\n' +
-      '7. ACCESSIBILITY:\n' +
-      '   ✓ Proper heading hierarchy (no skipped levels)\n' +
-      '   ✓ Alt attributes for any images\n' +
-      '   ✓ Sufficient color contrast\n' +
-      '   ✓ Focus indicators for interactive elements\n' +
-      '   ✓ ARIA labels where helpful\n\n' +
-      '8. PERFORMANCE:\n' +
-      '   ✓ Inline CSS (no external dependencies)\n' +
-      '   ✓ No JavaScript unless required for visualizations\n' +
-      '   ✓ Optimized for fast rendering\n' +
-      '   ✓ Clean, minified code structure\n\n' +
-      '9. VISUALIZATION TECHNIQUE:\n' +
-      '   Since this is static HTML, represent charts using:\n' +
-      '   ✓ CSS bar charts (div elements with width/height)\n' +
-      '   ✓ CSS pie charts (conic-gradient or border tricks)\n' +
-      '   ✓ HTML tables with styled rows\n' +
-      '   ✓ Unicode charts: ▂▃▅▆▇ █░▒▓ ■□▪▫\n' +
-      '   ✓ SVG inline for complex shapes\n' +
-      '   ✓ Or clearly labeled [CHART] sections with data tables\n\n' +
-      '10. CODE QUALITY:\n' +
-      '    ✓ Well-commented CSS sections\n' +
-      '    ✓ Logical class naming (BEM or utility-style)\n' +
-      '    ✓ No unnecessary divs (semantic HTML first)\n' +
-      '    ✓ Indented and formatted for readability\n\n' +
-      'DESIGN INSPIRATION:\n' +
-      '- Think: Modern SaaS dashboards (Stripe, Notion, Linear)\n' +
-      '- Color scheme: Professional but not corporate\n' +
-      '- White space: Generous, not cramped\n' +
-      '- Typography: Clear hierarchy, excellent readability\n\n' +
-      'CRITICAL OUTPUT REQUIREMENT:\n' +
-      'Return ONLY the complete HTML code. NO explanations, NO markdown code blocks, NO additional text.\n' +
-      'The output must start with <!DOCTYPE html> and end with </html>\n\n' +
-      'Begin generating the HTML now:';
+      '\n' +
+      'YOUR MISSION\n' +
+      '\n\n' +
+      'Create a production-ready, STUNNING dashboard that:\n' +
+      '✓ Tells a compelling data story at first glance\n' +
+      '✓ Uses interactive Chart.js visualizations that bring data to life\n' +
+      '✓ Guides the user\'s eye to the most important insights\n' +
+      '✓ Feels premium, modern, and delightful to use\n\n' +
+      '\n' +
+      'TECHNICAL REQUIREMENTS\n' +
+      '\n\n' +
+      '1. DOCUMENT STRUCTURE:\n' +
+      '   ✓ Complete HTML5 document with <!DOCTYPE html>\n' +
+      '   ✓ <head> section with:\n' +
+      '     - <meta charset="UTF-8">\n' +
+      '     - <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+      '     - <title>[Question] - Data Dashboard</title>\n' +
+      '     - Chart.js CDN: <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>\n' +
+      '   ✓ Semantic HTML5: <header>, <main>, <section>, <article>, <footer>\n\n' +
+      '2. CHART.JS VISUALIZATION EXCELLENCE:\n\n' +
+      '   CRITICAL: Use Chart.js for ALL major visualizations. Each chart must:\n\n' +
+      '   A) CHART SELECTION (Choose the RIGHT chart type):\n' +
+      '      • Line Chart → Trends over time, continuous data\n' +
+      '      • Bar/Column Chart → Comparisons between categories\n' +
+      '      • Horizontal Bar → Rankings, long category names\n' +
+      '      • Pie/Doughnut → Part-to-whole (max 5-6 slices)\n' +
+      '      • Area Chart → Volume over time, cumulative trends\n' +
+      '      • Scatter Plot → Relationships, correlations\n' +
+      '      • Mixed Charts → Multiple metrics (line + bar combo)\n\n' +
+      '   B) CHART CONFIGURATION (Make charts BEAUTIFUL):\n' +
+      '      ```javascript\n' +
+      '      const config = {\n' +
+      '        type: \'bar\', // or line, pie, doughnut, etc.\n' +
+      '        data: {\n' +
+      '          labels: [\'Jan\', \'Feb\', \'Mar\', ...],\n' +
+      '          datasets: [{\n' +
+      '            label: \'Revenue\',\n' +
+      '            data: [12, 19, 3, ...],\n' +
+      '            backgroundColor: \'rgba(99, 102, 241, 0.8)\', // Use your theme colors\n' +
+      '            borderColor: \'rgba(99, 102, 241, 1)\',\n' +
+      '            borderWidth: 2,\n' +
+      '            borderRadius: 8, // Rounded corners\n' +
+      '            tension: 0.4 // Smooth lines\n' +
+      '          }]\n' +
+      '        },\n' +
+      '        options: {\n' +
+      '          responsive: true,\n' +
+      '          maintainAspectRatio: true,\n' +
+      '          plugins: {\n' +
+      '            legend: {\n' +
+      '              display: true,\n' +
+      '              position: \'top\',\n' +
+      '              labels: {\n' +
+      '                font: { size: 12, family: \'Inter, sans-serif\' },\n' +
+      '                padding: 15,\n' +
+      '                usePointStyle: true // Modern legend style\n' +
+      '              }\n' +
+      '            },\n' +
+      '            tooltip: {\n' +
+      '              backgroundColor: \'rgba(0, 0, 0, 0.8)\',\n' +
+      '              padding: 12,\n' +
+      '              cornerRadius: 8,\n' +
+      '              titleFont: { size: 14, weight: \'bold\' },\n' +
+      '              bodyFont: { size: 13 },\n' +
+      '              callbacks: {\n' +
+      '                label: (context) => {\n' +
+      '                  // Format numbers: $1.2M, 45.3%, etc.\n' +
+      '                  return ` ${context.dataset.label}: ${formatValue(context.parsed.y)}`;\n' +
+      '                }\n' +
+      '              }\n' +
+      '            },\n' +
+      '            title: {\n' +
+      '              display: false // Use HTML h3 for titles instead\n' +
+      '            }\n' +
+      '          },\n' +
+      '          scales: {\n' +
+      '            y: {\n' +
+      '              beginAtZero: true,\n' +
+      '              grid: {\n' +
+      '                color: \'rgba(0, 0, 0, 0.05)\', // Subtle grid lines\n' +
+      '                drawBorder: false\n' +
+      '              },\n' +
+      '              ticks: {\n' +
+      '                font: { size: 11 },\n' +
+      '                callback: (value) => formatValue(value) // Format axis labels\n' +
+      '              }\n' +
+      '            },\n' +
+      '            x: {\n' +
+      '              grid: { display: false }, // Clean x-axis\n' +
+      '              ticks: { font: { size: 11 } }\n' +
+      '            }\n' +
+      '          },\n' +
+      '          interaction: {\n' +
+      '            intersect: false,\n' +
+      '            mode: \'index\' // Show all values on hover\n' +
+      '          },\n' +
+      '          animation: {\n' +
+      '            duration: 1000,\n' +
+      '            easing: \'easeInOutQuart\'\n' +
+      '          }\n' +
+      '        }\n' +
+      '      };\n' +
+      '      ```\n\n' +
+      '   C) CHART IMPLEMENTATION PATTERN:\n' +
+      '      ```html\n' +
+      '      <div class="chart-container">\n' +
+      '        <h3 class="chart-title">Revenue Trend</h3>\n' +
+      '        <p class="chart-subtitle">Monthly performance over the last 12 months</p>\n' +
+      '        <canvas id="revenueChart"></canvas>\n' +
+      '      </div>\n' +
+      '      <script>\n' +
+      '        const ctx = document.getElementById(\'revenueChart\').getContext(\'2d\');\n' +
+      '        new Chart(ctx, config);\n' +
+      '      </script>\n' +
+      '      ```\n\n' +
+      '   D) COLOR PALETTES (Choose ONE cohesive scheme):\n\n' +
+      '      Option 1 - Modern Blue:\n' +
+      '      • Primary: [\'#6366f1\', \'#8b5cf6\', \'#ec4899\', \'#f59e0b\', \'#10b981\']\n' +
+      '      • Use: Professional, tech, financial dashboards\n\n' +
+      '      Option 2 - Vibrant Gradient:\n' +
+      '      • Primary: [\'#667eea\', \'#764ba2\', \'#f093fb\', \'#4facfe\', \'#00f2fe\']\n' +
+      '      • Use: Creative, marketing, engagement dashboards\n\n' +
+      '      Option 3 - Sophisticated Dark:\n' +
+      '      • Primary: [\'#3b82f6\', \'#8b5cf6\', \'#ec4899\', \'#f59e0b\', \'#14b8a6\']\n' +
+      '      • Use: Executive, analytics, dark mode dashboards\n\n' +
+      '      Option 4 - Warm Business:\n' +
+      '      • Primary: [\'#f59e0b\', \'#ef4444\', \'#8b5cf6\', \'#3b82f6\', \'#10b981\']\n' +
+      '      • Use: Sales, revenue, performance dashboards\n\n' +
+      '      IMPORTANT: Use consistent alpha values for fills (0.7-0.8) and borders (1.0)\n\n' +
+      '   E) DATA FORMATTING HELPER:\n' +
+      '      ```javascript\n' +
+      '      function formatValue(value) {\n' +
+      '        if (value >= 1e9) return \'$\' + (value / 1e9).toFixed(1) + \'B\';\n' +
+      '        if (value >= 1e6) return \'$\' + (value / 1e6).toFixed(1) + \'M\';\n' +
+      '        if (value >= 1e3) return \'$\' + (value / 1e3).toFixed(1) + \'K\';\n' +
+      '        return \'$\' + value.toFixed(0);\n' +
+      '        // Adjust for percentages, counts, etc.\n' +
+      '      }\n' +
+      '      ```\n\n' +
+      '3. DASHBOARD LAYOUT ARCHITECTURE:\n\n' +
+      '   A) HERO SECTION (Top - Immediate Impact):\n' +
+      '      ```html\n' +
+      '      <section class="hero-metrics">\n' +
+      '        <div class="kpi-card">\n' +
+      '          <div class="kpi-icon">📈</div>\n' +
+      '          <div class="kpi-content">\n' +
+      '            <p class="kpi-label">Total Revenue</p>\n' +
+      '            <h2 class="kpi-value">$2.4M</h2>\n' +
+      '            <p class="kpi-change positive">↑ 23.5% vs last month</p>\n' +
+      '          </div>\n' +
+      '        </div>\n' +
+      '        <!-- 3-5 key metrics -->\n' +
+      '      </section>\n' +
+      '      ```\n\n' +
+      '   B) VISUALIZATION GRID (Main Content):\n' +
+      '      • Use CSS Grid: 2-3 columns on desktop\n' +
+      '      • Each chart in a card with padding and shadow\n' +
+      '      • Prioritize: Most important chart = largest size\n' +
+      '      • Aspect ratio: 16:9 for main charts, 1:1 for secondary\n\n' +
+      '   C) INSIGHT CALLOUTS (Highlight Key Findings):\n' +
+      '      ```html\n' +
+      '      <div class="insight-box">\n' +
+      '        <span class="insight-icon">💡</span>\n' +
+      '        <div>\n' +
+      '          <h4>Key Insight</h4>\n' +
+      '          <p>Q4 sales exceeded targets by 34%, driven primarily by product category A</p>\n' +
+      '        </div>\n' +
+      '      </div>\n' +
+      '      ```\n\n' +
+      '4. CSS DESIGN SYSTEM:\n\n' +
+      '   ```css\n' +
+      '   :root {\n' +
+      '     /* Colors */\n' +
+      '     --primary: #6366f1;\n' +
+      '     --secondary: #8b5cf6;\n' +
+      '     --accent: #ec4899;\n' +
+      '     --success: #10b981;\n' +
+      '     --warning: #f59e0b;\n' +
+      '     --danger: #ef4444;\n' +
+      '     \n' +
+      '     /* Backgrounds */\n' +
+      '     --bg-primary: #ffffff;\n' +
+      '     --bg-secondary: #f9fafb;\n' +
+      '     --bg-card: #ffffff;\n' +
+      '     \n' +
+      '     /* Text */\n' +
+      '     --text-primary: #111827;\n' +
+      '     --text-secondary: #6b7280;\n' +
+      '     --text-muted: #9ca3af;\n' +
+      '     \n' +
+      '     /* Shadows */\n' +
+      '     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);\n' +
+      '     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);\n' +
+      '     --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);\n' +
+      '     --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);\n' +
+      '     \n' +
+      '     /* Spacing */\n' +
+      '     --space-xs: 4px;\n' +
+      '     --space-sm: 8px;\n' +
+      '     --space-md: 16px;\n' +
+      '     --space-lg: 24px;\n' +
+      '     --space-xl: 32px;\n' +
+      '     --space-2xl: 48px;\n' +
+      '     \n' +
+      '     /* Border Radius */\n' +
+      '     --radius-sm: 6px;\n' +
+      '     --radius-md: 12px;\n' +
+      '     --radius-lg: 16px;\n' +
+      '     --radius-full: 9999px;\n' +
+      '     \n' +
+      '     /* Typography */\n' +
+      '     --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;\n' +
+      '     --font-mono: "SF Mono", Consolas, monospace;\n' +
+      '   }\n\n' +
+      '   body {\n' +
+      '     font-family: var(--font-sans);\n' +
+      '     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n' +
+      '     /* OR: solid color with texture */\n' +
+      '     color: var(--text-primary);\n' +
+      '     line-height: 1.6;\n' +
+      '     margin: 0;\n' +
+      '     padding: var(--space-lg);\n' +
+      '   }\n\n' +
+      '   .dashboard-container {\n' +
+      '     max-width: 1400px;\n' +
+      '     margin: 0 auto;\n' +
+      '     background: var(--bg-primary);\n' +
+      '     border-radius: var(--radius-lg);\n' +
+      '     box-shadow: var(--shadow-xl);\n' +
+      '     padding: var(--space-2xl);\n' +
+      '   }\n\n' +
+      '   .chart-container {\n' +
+      '     background: var(--bg-card);\n' +
+      '     border-radius: var(--radius-md);\n' +
+      '     padding: var(--space-lg);\n' +
+      '     box-shadow: var(--shadow-md);\n' +
+      '     transition: all 0.3s ease;\n' +
+      '     border: 1px solid rgba(0, 0, 0, 0.05);\n' +
+      '   }\n\n' +
+      '   .chart-container:hover {\n' +
+      '     box-shadow: var(--shadow-lg);\n' +
+      '     transform: translateY(-2px);\n' +
+      '   }\n\n' +
+      '   .kpi-card {\n' +
+      '     background: linear-gradient(135deg, var(--primary), var(--secondary));\n' +
+      '     color: white;\n' +
+      '     border-radius: var(--radius-md);\n' +
+      '     padding: var(--space-xl);\n' +
+      '     box-shadow: var(--shadow-lg);\n' +
+      '   }\n\n' +
+      '   .kpi-value {\n' +
+      '     font-size: 48px;\n' +
+      '     font-weight: 700;\n' +
+      '     margin: var(--space-sm) 0;\n' +
+      '     letter-spacing: -1px;\n' +
+      '   }\n' +
+      '   ```\n\n' +
+      '5. RESPONSIVE DESIGN:\n\n' +
+      '   ```css\n' +
+      '   /* Desktop: 3-column grid */\n' +
+      '   .visualization-grid {\n' +
+      '     display: grid;\n' +
+      '     grid-template-columns: repeat(3, 1fr);\n' +
+      '     gap: var(--space-lg);\n' +
+      '   }\n\n' +
+      '   /* Featured charts span 2 columns */\n' +
+      '   .chart-featured {\n' +
+      '     grid-column: span 2;\n' +
+      '   }\n\n' +
+      '   /* Tablet: 2 columns */\n' +
+      '   @media (max-width: 1024px) {\n' +
+      '     .visualization-grid {\n' +
+      '       grid-template-columns: repeat(2, 1fr);\n' +
+      '     }\n' +
+      '   }\n\n' +
+      '   /* Mobile: 1 column */\n' +
+      '   @media (max-width: 768px) {\n' +
+      '     .visualization-grid {\n' +
+      '       grid-template-columns: 1fr;\n' +
+      '     }\n' +
+      '     .chart-featured {\n' +
+      '       grid-column: span 1;\n' +
+      '     }\n' +
+      '     .kpi-value {\n' +
+      '       font-size: 36px;\n' +
+      '     }\n' +
+      '   }\n' +
+      '   ```\n\n' +
+      '6. ACCESSIBILITY EXCELLENCE:\n' +
+      '   ✓ All charts have descriptive aria-label attributes\n' +
+      '   ✓ Color is NOT the only way to convey information (use icons, labels)\n' +
+      '   ✓ Sufficient contrast ratios (4.5:1 minimum)\n' +
+      '   ✓ Semantic heading hierarchy (h1 → h2 → h3)\n' +
+      '   ✓ Focus indicators on interactive elements\n\n' +
+      '7. PERFORMANCE OPTIMIZATION:\n' +
+      '   ✓ Inline critical CSS in <style> tag\n' +
+      '   ✓ Load Chart.js from CDN (cached across sites)\n' +
+      '   ✓ Initialize charts after DOM ready\n' +
+      '   ✓ Use requestAnimationFrame for smooth animations\n' +
+      '   ✓ Minimize chart data points if > 100 (aggregate as needed)\n\n' +
+      '8. JAVASCRIPT STRUCTURE:\n\n' +
+      '   ```javascript\n' +
+      '   document.addEventListener(\'DOMContentLoaded\', function() {\n' +
+      '     // Initialize all charts\n' +
+      '     initRevenueChart();\n' +
+      '     initGrowthChart();\n' +
+      '     // ... etc\n' +
+      '   });\n\n' +
+      '   function initRevenueChart() {\n' +
+      '     const ctx = document.getElementById(\'revenueChart\').getContext(\'2d\');\n' +
+      '     const chart = new Chart(ctx, {\n' +
+      '       // configuration\n' +
+      '     });\n' +
+      '   }\n' +
+      '   ```\n\n' +
+      '\n' +
+      'DATA VISUALIZATION BEST PRACTICES\n' +
+      '\n\n' +
+      '✓ START WITH THE ANSWER: Most important insight = largest, top-left position\n' +
+      '✓ VISUAL HIERARCHY: Guide the eye with size, color, position\n' +
+      '✓ REDUCE COGNITIVE LOAD: Remove chart borders, excessive gridlines, 3D effects\n' +
+      '✓ USE COLOR PURPOSEFULLY: \n' +
+      '  • Green = positive/growth\n' +
+      '  • Red = negative/decline  \n' +
+      '  • Blue/Purple = neutral/primary data\n' +
+      '  • Yellow/Orange = warnings/highlights\n' +
+      '✓ CONTEXT MATTERS: Always show comparisons (vs last period, vs target, vs average)\n' +
+      '✓ LABEL DIRECTLY: Put labels on the chart, not just in legend\n' +
+      '✓ FORMAT NUMBERS: Use K, M, B suffixes; include currency symbols; show percentages\n' +
+      '✓ TELL A STORY: Order charts to build narrative (overview → detail → insights)\n\n' +
+      '\n' +
+      'QUALITY CHECKLIST (Review before output)\n' +
+      '\n\n' +
+      '□ Chart.js CDN loaded in <head>\n' +
+      '□ Every major visualization uses Chart.js (not CSS/Unicode)\n' +
+      '□ Charts are properly configured with beautiful styling\n' +
+      '□ Color palette is consistent across all charts\n' +
+      '□ KPI cards show clear metrics with context (comparison/trend)\n' +
+      '□ Layout has clear visual hierarchy (hero → visualizations → insights)\n' +
+      '□ Responsive design works on mobile/tablet/desktop\n' +
+      '□ All charts have descriptive titles and subtitles\n' +
+      '□ Numbers are formatted appropriately ($1.2M, 23.5%, etc.)\n' +
+      '□ Color contrast meets WCAG AA standards\n' +
+      '□ JavaScript is clean, commented, and functional\n' +
+      '□ Dashboard tells a clear data story\n' +
+      '□ Design feels premium and modern\n\n' +
+      '\n' +
+      'CRITICAL OUTPUT REQUIREMENT\n' +
+      '\n\n' +
+      'Return ONLY the complete HTML code.\n' +
+      'NO explanations. NO markdown code blocks. NO additional text.\n' +
+      'Output must start with <!DOCTYPE html> and end with </html>\n\n' +
+      'BEGIN GENERATING THE STUNNING DASHBOARD NOW:';
   }
 }

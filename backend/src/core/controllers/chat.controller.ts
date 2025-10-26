@@ -26,4 +26,9 @@ export class ChatController {
   getHistory(@Param('chatId') chatId: string) {
     return this.chatService.getConversationHistory(chatId);
   }
+
+  @Get()
+  getChats() {
+    return this.chatService.getChats();
+  }
 }

@@ -1,13 +1,14 @@
 import type { HtmlResult } from '../types/chat';
 
-const HTML_MARKER = '/html/';
-
 export function deriveRelativeHtmlPath(result: HtmlResult): string | null {
-  const markerIndex = result.path.lastIndexOf(HTML_MARKER);
-  if (markerIndex === -1) {
-    return null;
+  if (result.filename) {
+    return `/html/${result.filename}`;
   }
-  return result.path.slice(markerIndex);
+  const match = result.path.match(/[/\\]html[/\\]([^/\\]+\.html)$/);
+  if (match) {
+    return `/html/${match[1]}`;
+  }
+  return null;
 }
 
 export function resolveHtmlPreviewUrl(result: HtmlResult): string | null {

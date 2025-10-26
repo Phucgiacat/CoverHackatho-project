@@ -10,14 +10,34 @@ const roleLabel: Record<Message['role'], string> = {
   ASSISTANT: 'Agent',
 };
 
-const typeLabel: Partial<Record<Message['type'], string>> = {
-  SUMMARY: 'Summary',
-  QUERY: 'Query',
-  PLAN: 'Plan',
-};
+/**
+ * Strips HTML code blocks from message content
+ * If the message contains <!DOCTYPE html> or <html>, remove everything from that point onwards
+ */
+function stripHtmlCode(content: string): string {
+  // Check for HTML document start patterns
+  const htmlPatterns = [
+    /<!DOCTYPE html>/i,
+    /<html[^>]*>/i,
+    /```html\s*<!DOCTYPE/i,
+  ];
+
+  for (const pattern of htmlPatterns) {
+    const match = content.match(pattern);
+    if (match && match.index !== undefined) {
+      // Return everything before the HTML code starts
+      return content.substring(0, match.index).trim();
+    }
+  }
+
+  return content;
+}
 
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'USER';
+  
+  // Strip HTML code from assistant messages
+  const displayContent = isUser ? message.content : stripHtmlCode(message.content);
 
   return (
     <article
@@ -30,15 +50,15 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         <div>
           <div className="message-bubble__role">{roleLabel[message.role]}</div>
           <time className="message-bubble__timestamp">
-            {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            {new Date(message.createdAt).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </time>
         </div>
-        {typeLabel[message.type] && (
-          <span className="message-bubble__type">{typeLabel[message.type]}</span>
-        )}
       </header>
       <div className="message-bubble__content">
-        <RichText content={message.content} />
+        <RichText content={displayContent} />
       </div>
     </article>
   );

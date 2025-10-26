@@ -378,6 +378,16 @@ export class ChatService {
           forced: forceGeneration,
         });
 
+        // Add a generation start message
+        const generatingMessage = this.messageRepository.create({
+          content: `We will now generate the dashboard based on the approved plan, focusing on delivering a high-impact, data-driven story.\n\nThe generated dashboard will include:\n${this.extractDashboardFeatures(chat.generatedPlan || '')}\n\nBuilding your responsive, interactive HTML dashboard now...`,
+          role: MessageRole.ASSISTANT,
+          type: MessageType.PLAN,
+          chat,
+        });
+        chat.messages.push(generatingMessage);
+        await this.chatRepository.save(chat);
+
         const htmlResult = await this.docsService.savePlanAsHtml(
           chat.relevantFiles.join(', ') || 'dashboard',
           chat.context || 'Dashboard visualization',
@@ -463,6 +473,45 @@ export class ChatService {
     return LLM_DETECTION_PHRASES.GENERATE_HTML.some((phrase) => lowerMessage.includes(phrase));
   }
 
+  /**
+   * Helper: Extract key features from dashboard plan to show in generation message
+   */
+  private extractDashboardFeatures(plan: string): string {
+    // Try to extract primary metrics or key sections
+    const features: string[] = [];
+    
+    // Look for Primary Metrics section
+    const metricsMatch = plan.match(/### Primary Metrics[^#]*/);
+    if (metricsMatch) {
+      const metricLines = metricsMatch[0].split('\n')
+        .filter(line => line.trim().startsWith('**Metric'))
+        .slice(0, 5);
+      
+      if (metricLines.length > 0) {
+        features.push(`**Key Metrics**: ${metricLines.length} critical KPIs to display prominently`);
+      }
+    }
+    
+    // Look for visualizations section
+    const vizMatch = plan.match(/### Supporting Visualizations[^#]*/);
+    if (vizMatch) {
+      const vizLines = vizMatch[0].split('\n')
+        .filter(line => line.trim().startsWith('**Chart') || line.trim().startsWith('**Visualization'))
+        .slice(0, 5);
+      
+      if (vizLines.length > 0) {
+        features.push(`**Visualizations**: ${vizLines.length} interactive charts and graphs`);
+      }
+    }
+    
+    // If no structured features found, provide generic message
+    if (features.length === 0) {
+      return '- Interactive visualizations based on your data\n- Key performance indicators and metrics\n- Responsive design for all devices';
+    }
+    
+    return features.map(f => `- ${f}`).join('\n');
+  }
+
   async transitionPhase(chatId: string, newPhase: Phase) {
     this.logger.info('Manual phase transition', { chatId, newPhase });
 
@@ -517,4 +566,39 @@ export class ChatService {
       updatedAt: chat.updatedAt,
     };
   }
+
+  async getChats() {
+    const chats = await this.chatRepository
+      .createQueryBuilder('chat')
+      .leftJoinAndSelect(
+        'chat.messages',
+        'message',
+        `
+        "message"."createdAt" = (
+          SELECT MAX("m"."createdAt")
+          FROM "message" "m"
+          WHERE "m"."chatId" = "chat"."id"
+        )
+        `
+      )
+      .orderBy('chat.createdAt', 'DESC')
+      .select([
+        'chat.id',
+        'chat.createdAt',
+        'chat.updatedAt',
+        'message.id',
+        'message.content',
+        'message.role',
+        'message.type',
+        'message.createdAt',
+      ])
+      .getMany();
+  
+    return chats.map(chat => ({
+      id: chat.id,
+      createdAt: chat.createdAt,
+      updatedAt: chat.updatedAt,
+      message: chat.messages?.[0] || null,
+    }));
+  }  
 }

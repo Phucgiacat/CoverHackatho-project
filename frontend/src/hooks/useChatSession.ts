@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { askQuestion, createChat, fetchChatHistory } from '../api/chat';
 import type { Chat, HtmlResult, Message, SuggestedAction } from '../types/chat';
-import { deriveRelativeHtmlPath } from '../utils/path';
+import { resolveHtmlPreviewUrl } from '../utils/path';
 
 const tempIdPrefix = 'temp-';
 
@@ -77,8 +77,8 @@ export function useChatSession() {
 
   const loadHtmlPreview = useCallback(
     async (result: HtmlResult) => {
-      const relativePath = deriveRelativeHtmlPath(result);
-      if (!relativePath) {
+      const previewUrl = resolveHtmlPreviewUrl(result);
+      if (!previewUrl) {
         setHtmlPreviewError('Preview path unavailable. Open the file from disk instead.');
         setHtmlPreview(null);
         return;
@@ -87,7 +87,7 @@ export function useChatSession() {
       setIsLoadingPreview(true);
       setHtmlPreviewError(null);
       try {
-        const response = await fetch(relativePath, {
+        const response = await fetch(previewUrl, {
           headers: { Accept: 'text/html' },
         });
         if (!response.ok) {
