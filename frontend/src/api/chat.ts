@@ -1,6 +1,6 @@
 import type { AskResponse, Chat } from '../types/chat';
 
-const baseUrl = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? '';
+const baseUrl = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? 'http://localhost:3000';
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {

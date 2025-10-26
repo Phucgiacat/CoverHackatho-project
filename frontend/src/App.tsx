@@ -5,6 +5,8 @@ import { ChatComposer } from './components/ChatComposer'
 import { EmptyState } from './components/EmptyState'
 import { MessageList } from './components/MessageList'
 import { SuggestedActionTag } from './components/SuggestedActionTag'
+import { SourcesSidebar } from './components/SourcesSidebar'
+import { ChatsSidebar } from './components/ChatsSidebar'
 import { useChatSession } from './hooks/useChatSession'
 
 function App() {
@@ -14,6 +16,7 @@ function App() {
     isReady,
     isCreating,
     isSending,
+    isLoadingChat,
     assistantIsThinking,
     error,
     suggestedAction,
@@ -24,6 +27,7 @@ function App() {
     createChatSession,
     sendMessage,
     retryPreview,
+    loadChat,
   } = useChatSession()
 
   const hasMessages = messages.length > 0
@@ -38,67 +42,93 @@ function App() {
     }
   }, [messages, assistantIsThinking, htmlResult])
 
+  const handleSelectChat = (chatId: string) => {
+    if (chatId !== chat?.id) {
+      loadChat(chatId);
+    }
+  };
+
   return (
-    <div className="app-shell">
+    <div className="app-container">
+      {/* Top Header */}
       <header className="app-header">
-        <div>
-          <h1 className="app-title">Dashboard Agent</h1>
-          <p className="app-subtitle">
-            Chat with the backend AI agent, iterate on requirements, and preview generated dashboards.
-          </p>
-        </div>
-        <div className="app-header__actions">
-          {chat?.phase && (
-            <span className="phase-pill" title="Current phase">
-              {chat.phase.toLowerCase()}
-            </span>
-          )}
-          <button
-            type="button"
-            className="button-secondary"
-            onClick={createChatSession}
-            disabled={isCreating}
-          >
-            {isCreating ? 'Creating…' : 'New chat'}
-          </button>
+        <div className="app-header-content">
+          <div>
+            <h1 className="app-title">📊 Dashboard Agent</h1>
+            <p className="app-subtitle">
+              AI-powered dashboard generation from your documents
+            </p>
+          </div>
+          <div className="app-header__actions">
+            {chat?.phase && (
+              <span className="phase-pill" title="Current phase">
+                {chat.phase.toLowerCase()}
+              </span>
+            )}
+            <button
+              type="button"
+              className="button-secondary"
+              onClick={createChatSession}
+              disabled={isCreating}
+            >
+              {isCreating ? 'Creating…' : '✨ New chat'}
+            </button>
+          </div>
         </div>
       </header>
 
       {error && <div className="error-banner">{error}</div>}
 
-      {!isReady && (
-        <EmptyState isCreating={isCreating} onCreate={createChatSession} />
-      )}
+      {/* Main 3-column layout */}
+      <div className="app-main">
+        {/* Left Sidebar - Sources */}
+        <SourcesSidebar relevantFiles={chat?.relevantFiles || []} />
 
-      {isReady && (
-        <main className="chat-stage">
-          <section className="chat-card">
-            <div className="chat-card__scroller" ref={scrollRef}>
-              {hasMessages ? (
-                <MessageList
-                  messages={messages}
-                  assistantIsThinking={assistantIsThinking}
-                  htmlResult={htmlResult}
-                  htmlPreview={htmlPreview}
-                  isLoadingPreview={isLoadingPreview}
-                  htmlPreviewError={htmlPreviewError}
-                  onRefreshPreview={retryPreview}
-                />
-              ) : (
-                <div className="chat-placeholder">
-                  <p>The agent is ready. Ask your first question to get started.</p>
-                </div>
-              )}
+        {/* Center - Chat Area */}
+        <main className="chat-main">
+          {!isReady && !isLoadingChat ? (
+            <EmptyState isCreating={isCreating} onCreate={createChatSession} />
+          ) : isLoadingChat ? (
+            <div className="loading-state">
+              <div className="loading-spinner" />
+              <p>Loading chat...</p>
             </div>
-            <SuggestedActionTag action={suggestedAction} />
-            <ChatComposer
-              onSend={sendMessage}
-              disabled={!isReady}
-              isSending={isSending}
-            />
-          </section>
+          ) : (
+            <>
+              <div className="chat-messages" ref={scrollRef}>
+                {hasMessages ? (
+                  <MessageList
+                    messages={messages}
+                    assistantIsThinking={assistantIsThinking}
+                    htmlResult={htmlResult}
+                    htmlPreview={htmlPreview}
+                    isLoadingPreview={isLoadingPreview}
+                    htmlPreviewError={htmlPreviewError}
+                    onRefreshPreview={retryPreview}
+                  />
+                ) : (
+                  <div className="chat-placeholder">
+                    <p>💬 The agent is ready. Ask your first question to get started.</p>
+                  </div>
+                )}
+              </div>
+              
+              {/* Fixed Chat Input at Bottom */}
+              <div className="chat-input-container">
+                <SuggestedActionTag action={suggestedAction} />
+                <ChatComposer
+                  onSend={sendMessage}
+                  disabled={!isReady || isLoadingChat}
+                  isSending={isSending}
+                />
+              </div>
+            </>
+          )}
         </main>
-      )}
+
+        {/* Right Sidebar - Chat History */}
+        <ChatsSidebar currentChatId={chat?.id || null} onSelectChat={handleSelectChat} />
+      </div>
     </div>
   )
 }

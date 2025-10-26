@@ -17,6 +17,7 @@ export interface Chat {
   relevantFiles?: string[];
   context?: string | null;
   generatedPlan?: string | null;
+  generatedHtmlPath?: string | null;
   createdAt: string;
   updatedAt: string;
 }

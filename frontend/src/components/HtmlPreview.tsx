@@ -16,18 +16,51 @@ export function HtmlPreview({ result, html, isLoading, error, onRetry }: HtmlPre
 
   const previewUrl = resolveHtmlPreviewUrl(result);
 
+  const handleDownload = () => {
+    if (!html && !previewUrl) {
+      alert('No HTML content available to download');
+      return;
+    }
+
+    const content = html || '';
+    const blob = new Blob([content], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = result.filename || 'dashboard.html';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <section className="html-preview">
       <header className="html-preview__header">
         <div>
-          <h3 className="html-preview__title">Dashboard preview</h3>
+          <h3 className="html-preview__title">📊 Dashboard Preview</h3>
           <p className="html-preview__subtitle">
             {result.message} ({result.filename})
           </p>
         </div>
         <div className="html-preview__controls">
-          <button type="button" className="button-secondary" onClick={onRetry} disabled={isLoading}>
-            Refresh preview
+          <button 
+            type="button" 
+            className="button-icon" 
+            onClick={onRetry} 
+            disabled={isLoading}
+            title="Refresh preview"
+          >
+            🔄
+          </button>
+          <button
+            type="button"
+            className="button-secondary"
+            onClick={handleDownload}
+            disabled={!html && !previewUrl}
+            title="Download dashboard"
+          >
+            📥 Download
           </button>
           {previewUrl && (
             <button
@@ -35,7 +68,7 @@ export function HtmlPreview({ result, html, isLoading, error, onRetry }: HtmlPre
               className="button-primary"
               onClick={() => window.open(previewUrl, '_blank', 'noopener')}
             >
-              Open in new tab
+              🔗 Open in new tab
             </button>
           )}
         </div>
@@ -48,6 +81,7 @@ export function HtmlPreview({ result, html, isLoading, error, onRetry }: HtmlPre
             className="html-preview__frame"
             title="Generated dashboard preview"
             srcDoc={html}
+            sandbox="allow-scripts allow-same-origin"
           />
         )}
         {!isLoading && !html && !error && previewUrl && (
@@ -55,6 +89,7 @@ export function HtmlPreview({ result, html, isLoading, error, onRetry }: HtmlPre
             className="html-preview__frame"
             title="Generated dashboard preview"
             src={previewUrl}
+            sandbox="allow-scripts allow-same-origin"
           />
         )}
         {!isLoading && !html && !error && !previewUrl && (
@@ -62,7 +97,20 @@ export function HtmlPreview({ result, html, isLoading, error, onRetry }: HtmlPre
             Preview will appear here once available. Use the open button if nothing shows up.
           </p>
         )}
-        {error && <p className="html-preview__error">{error}</p>}
+        {error && (
+          <div className="html-preview__error">
+            <p>{error}</p>
+            {previewUrl && (
+              <button
+                type="button"
+                className="button-secondary"
+                onClick={() => window.open(previewUrl, '_blank', 'noopener')}
+              >
+                Try opening in new tab
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <footer className="html-preview__footer">

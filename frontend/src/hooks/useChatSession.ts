@@ -33,6 +33,7 @@ export function useChatSession() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isLoadingChat, setIsLoadingChat] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [suggestedAction, setSuggestedAction] = useState<SuggestedAction | null>(null);
   const [htmlResult, setHtmlResult] = useState<HtmlResult | null>(null);
@@ -54,7 +55,15 @@ export function useChatSession() {
       setMessages(sortMessages(newChat.messages ?? []));
       setSuggestedAction(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create chat');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create chat';
+      console.error('Failed to create chat:', err);
+      
+      // Check if it's a network error
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+        setError('Cannot connect to the backend server. Please make sure the backend is running on http://localhost:3000');
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setIsCreating(false);
     }
@@ -70,6 +79,49 @@ export function useChatSession() {
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to refresh chat history');
         return null;
+      }
+    },
+    [],
+  );
+
+  const loadChat = useCallback(
+    async (chatId: string) => {
+      setIsLoadingChat(true);
+      setError(null);
+      setHtmlResult(null);
+      setHtmlPreview(null);
+      setHtmlPreviewError(null);
+      setSuggestedAction(null);
+      
+      try {
+        const history = await fetchChatHistory(chatId);
+        setChat(history);
+        setMessages(sortMessages(history.messages ?? []));
+        
+        // If there's an HTML result in the chat, load it
+        if (history.generatedHtmlPath) {
+          const filename = history.generatedHtmlPath.split('/').pop() || 'dashboard.html';
+          const htmlResultData: HtmlResult = {
+            success: true,
+            filename,
+            path: history.generatedHtmlPath,
+            message: 'Dashboard generated',
+          };
+          setHtmlResult(htmlResultData);
+          latestHtmlResult.current = htmlResultData;
+        }
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load chat';
+        console.error('Failed to load chat:', err);
+        
+        // Check if it's a network error
+        if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+          setError('Cannot connect to the backend server. Please make sure the backend is running on http://localhost:3000');
+        } else {
+          setError(errorMessage);
+        }
+      } finally {
+        setIsLoadingChat(false);
       }
     },
     [],
@@ -132,7 +184,15 @@ export function useChatSession() {
         await refreshHistory(chat.id);
       } catch (err) {
         setMessages((prev) => prev.filter((msg) => msg.id !== optimisticMessage.id));
-        setError(err instanceof Error ? err.message : 'Failed to send message');
+        const errorMessage = err instanceof Error ? err.message : 'Failed to send message';
+        console.error('Failed to send message:', err);
+        
+        // Check if it's a network error
+        if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+          setError('Cannot connect to the backend server. Please make sure the backend is running on http://localhost:3000');
+        } else {
+          setError(errorMessage);
+        }
       } finally {
         setIsSending(false);
       }
@@ -164,6 +224,7 @@ export function useChatSession() {
     isReady,
     isCreating,
     isSending,
+    isLoadingChat,
     assistantIsThinking: isSending,
     error,
     suggestedAction,
@@ -175,5 +236,6 @@ export function useChatSession() {
     sendMessage,
     retryPreview,
     refreshHistory,
+    loadChat,
   };
 }

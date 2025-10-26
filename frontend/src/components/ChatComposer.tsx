@@ -1,4 +1,4 @@
-import { FormEvent, KeyboardEvent, useState } from 'react';
+import { FormEvent, KeyboardEvent, useState, useRef, useEffect } from 'react';
 
 interface ChatComposerProps {
   onSend: (message: string) => Promise<void> | void;
@@ -8,6 +8,7 @@ interface ChatComposerProps {
 
 export function ChatComposer({ onSend, disabled = false, isSending = false }: ChatComposerProps) {
   const [value, setValue] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -25,20 +26,30 @@ export function ChatComposer({ onSend, disabled = false, isSending = false }: Ch
     }
   };
 
+  // Auto-resize textarea
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+    }
+  }, [value]);
+
   return (
     <form className="chat-composer" onSubmit={handleSubmit}>
       <label className="visually-hidden" htmlFor="chat-input">
         Ask the agent
       </label>
       <textarea
+        ref={textareaRef}
         id="chat-input"
         className="chat-composer__input"
-        placeholder="Ask the dashboard agent anything... (Shift + Enter for new line)"
+        placeholder="💬 Ask the dashboard agent anything... (Shift + Enter for new line)"
         value={value}
         onChange={(event) => setValue(event.target.value)}
         onKeyDown={handleKeyDown}
         disabled={disabled || isSending}
-        rows={isSending ? 2 : 3}
+        rows={1}
       />
       <div className="chat-composer__actions">
         <button
@@ -46,7 +57,7 @@ export function ChatComposer({ onSend, disabled = false, isSending = false }: Ch
           className="chat-composer__submit"
           disabled={disabled || isSending || !value.trim()}
         >
-          {isSending ? 'Sending…' : 'Send'}
+          {isSending ? '⏳ Sending…' : '📤 Send'}
         </button>
       </div>
     </form>
