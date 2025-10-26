@@ -10,9 +10,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from llama_parse import LlamaParse
 
 # ========= CẤU HÌNH =========
-LLAMA_API_KEY = "llx-a3MgW6v4VGoS17hfASRlu8yMB4f7MLL28XJozsUj4ZQZ7aYS"
-STORAGE_DIR = r"D:\learning\my_project\new-project\CoverHackatho-project\mardow_folder"
-MAX_FILE_BYTES = int(os.getenv("MAX_FILE_BYTES", 50 * 1024 * 1024))  # 50 MB
+# Get API key from environment variable, fallback to hardcoded value
+LLAMA_API_KEY = os.getenv("LLAMA_API_KEY", "")
+
+# Get storage directory from environment or use relative path
+STORAGE_DIR = os.getenv("STORAGE_DIR", os.path.join(os.path.dirname(__file__), "mardow_folder"))
+
+# Maximum file size (50 MB default)
+MAX_FILE_BYTES = int(os.getenv("MAX_FILE_BYTES", 50 * 1024 * 1024))
 
 os.makedirs(STORAGE_DIR, exist_ok=True)
 
@@ -128,11 +133,18 @@ async def parse_endpoint(
             pass
         raise HTTPException(status_code=415, detail="File không phải định dạng PDF hợp lệ.")
 
-    job_id = uuid.uuid4().hex
     original_filename = file.filename
+    
+    # Extract filename without extension and sanitize
+    base_name = os.path.splitext(original_filename)[0]
+    # Remove or replace problematic characters for filenames
+    safe_basename = "".join(c if c.isalnum() or c in (' ', '-', '_') else '_' for c in base_name)
+    
+    # Generate a unique ID for tracking (still useful for the response)
+    job_id = uuid.uuid4().hex
 
     try:
-        md_path = parse_pdf_to_markdown(tmp_pdf, out_basename=job_id)
+        md_path = parse_pdf_to_markdown(tmp_pdf, out_basename=safe_basename)
 
         size = os.path.getsize(md_path)
 

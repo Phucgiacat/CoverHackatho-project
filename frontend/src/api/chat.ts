@@ -52,3 +52,44 @@ export async function fetchChatHistory(chatId: string): Promise<Chat> {
     updatedAt: payload.updatedAt,
   };
 }
+
+export interface Document {
+  id: string;
+  originalFilename: string;
+  markdownFilename: string;
+  fileSize: number;
+  uploadedAt: string;
+}
+
+export interface UploadResponse {
+  success: boolean;
+  document: Document;
+}
+
+export interface DocumentsResponse {
+  documents: Document[];
+}
+
+export async function uploadDocument(file: File): Promise<UploadResponse> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${baseUrl}/documents/upload`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  return handleResponse<UploadResponse>(response);
+}
+
+export async function getDocuments(): Promise<DocumentsResponse> {
+  const response = await fetch(`${baseUrl}/documents`);
+  return handleResponse<DocumentsResponse>(response);
+}
+
+export async function deleteDocument(id: string): Promise<{ success: boolean; message: string }> {
+  const response = await fetch(`${baseUrl}/documents/${id}`, {
+    method: 'DELETE',
+  });
+  return handleResponse<{ success: boolean; message: string }>(response);
+}

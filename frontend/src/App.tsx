@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 
 import { ChatComposer } from './components/ChatComposer'
@@ -7,6 +7,7 @@ import { MessageList } from './components/MessageList'
 import { SuggestedActionTag } from './components/SuggestedActionTag'
 import { SourcesSidebar } from './components/SourcesSidebar'
 import { ChatsSidebar } from './components/ChatsSidebar'
+import FileUpload from './components/FileUpload'
 import { useChatSession } from './hooks/useChatSession'
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
     loadChat,
   } = useChatSession()
 
+  const [showFileUpload, setShowFileUpload] = useState(false)
   const hasMessages = messages.length > 0
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
@@ -56,7 +58,7 @@ function App() {
           <div>
             <h1 className="app-title">📊 Dashboard Agent</h1>
             <p className="app-subtitle">
-              AI-powered dashboard generation from your documents
+              AI-powered data analysis assistant from your documents
             </p>
           </div>
           <div className="app-header__actions">
@@ -68,6 +70,13 @@ function App() {
             <button
               type="button"
               className="button-secondary"
+              onClick={() => setShowFileUpload(!showFileUpload)}
+            >
+              {showFileUpload ? '❌ Close Upload' : '📤 Upload PDF'}
+            </button>
+            <button
+              type="button"
+              className="button-secondary"
               onClick={createChatSession}
               disabled={isCreating}
             >
@@ -75,6 +84,16 @@ function App() {
             </button>
           </div>
         </div>
+        
+        {/* File Upload Panel */}
+        {showFileUpload && (
+          <div className="file-upload-panel">
+            <FileUpload onUploadSuccess={() => {
+              // Optionally close the panel after successful upload
+              // setShowFileUpload(false);
+            }} />
+          </div>
+        )}
       </header>
 
       {error && <div className="error-banner">{error}</div>}
