@@ -305,7 +305,7 @@ export class ChatService {
 
         // Save plan as message
         const planMessage = this.messageRepository.create({
-          content: `Here's your dashboard plan:\n\n${plan}\n\nWhat do you think? Would you like me to make any changes, or shall we proceed to generate the HTML dashboard?`,
+          content: `Here's your dashboard plan:\n\n${plan}\n\nWhat do you think? Would you like me to make any changes, or shall we proceed to generate the dashboard?`,
           role: MessageRole.ASSISTANT,
           type: MessageType.PLAN,
           chat,
@@ -360,7 +360,7 @@ export class ChatService {
 
       const responseMessage = this.messageRepository.create({
         content: forceGeneration
-          ? `I understand you'd like to refine the plan further, but let me generate the HTML dashboard now based on our current plan. You can always create a new chat for a different version!`
+          ? `I understand you'd like to refine the plan further, but let me generate the dashboard now based on our current plan. You can always create a new chat for a different version!`
           : assistantMessage,
         role: MessageRole.ASSISTANT,
         type: MessageType.PLAN,
@@ -372,7 +372,7 @@ export class ChatService {
 
       // If approved, generate HTML
       if (isApproved) {
-        this.logger.info('Generating HTML dashboard', {
+        this.logger.info('Generating dashboard', {
           chatId: chat.id,
           planMessageCount,
           forced: forceGeneration,
@@ -380,7 +380,7 @@ export class ChatService {
 
         // Add a generation start message
         const generatingMessage = this.messageRepository.create({
-          content: `We will now generate the dashboard based on the approved plan, focusing on delivering a high-impact, data-driven story.\n\nThe generated dashboard will include:\n${this.extractDashboardFeatures(chat.generatedPlan || '')}\n\nBuilding your responsive, interactive HTML dashboard now...`,
+          content: `We will now generate the dashboard based on the approved plan, focusing on delivering a high-impact, data-driven story.\n\nThe generated dashboard will include:\n${this.extractDashboardFeatures(chat.generatedPlan || '')}\n\nBuilding your responsive, interactive dashboard now...`,
           role: MessageRole.ASSISTANT,
           type: MessageType.PLAN,
           chat,
@@ -389,13 +389,17 @@ export class ChatService {
         await this.chatRepository.save(chat);
 
         const htmlResult = await this.docsService.savePlanAsHtml(
-          chat.relevantFiles.join(', ') || 'dashboard',
+          chat.relevantFiles || [],
           chat.context || 'Dashboard visualization',
           chat.generatedPlan || '',
         );
 
+        // Store HTML path and transition to REFINE phase
+        chat.generatedHtmlPath = htmlResult.path;
+        chat.phase = Phase.REFINE;
+
         const successMessage = this.messageRepository.create({
-          content: `Success! Your dashboard has been generated and saved as:\n\n**${htmlResult.filename}**\n\nPath: ${htmlResult.path}\n\nYou can open this file in your browser to view your interactive dashboard!`,
+          content: `Success! Your dashboard has been generated and saved as:\n\n**${htmlResult.filename}**\n\nPath: ${htmlResult.path}\n\nYou can open this file in your browser to view your interactive dashboard!\n\nIf you'd like to make any changes or improvements, just let me know what you'd like to adjust!`,
           role: MessageRole.ASSISTANT,
           type: MessageType.PLAN,
           chat,
@@ -404,19 +408,116 @@ export class ChatService {
 
         await this.chatRepository.save(chat);
 
-        this.logger.info('Conversation complete - HTML generated', {
+        this.logger.info('HTML generated - ready for refinement', {
           chatId: chat.id,
           htmlFile: htmlResult.filename,
+          phase: Phase.REFINE,
         });
 
         return {
           message: chat.messages[chat.messages.length - 1],
           htmlResult,
           suggestedAction: {
-            type: 'COMPLETE',
+            type: 'CONTINUE',
           },
         };
       }
+
+      return {
+        message: chat.messages[chat.messages.length - 1],
+        suggestedAction: {
+          type: 'CONTINUE',
+        },
+      };
+    }
+
+    if (chat.phase === Phase.REFINE) {
+      // User is providing feedback to refine the HTML dashboard
+      this.logger.info('Processing HTML refinement feedback', { chatId: chat.id });
+
+      // Ensure we have the necessary context
+      if (!chat.generatedHtmlPath || !chat.relevantFiles || chat.relevantFiles.length === 0) {
+        const errorMessage = this.messageRepository.create({
+          content: `I couldn't find the generated dashboard or source files. This shouldn't happen. Please try creating a new chat.`,
+          role: MessageRole.ASSISTANT,
+          type: MessageType.PLAN,
+          chat,
+        });
+        chat.messages.push(errorMessage);
+        await this.chatRepository.save(chat);
+        return {
+          message: chat.messages[chat.messages.length - 1],
+          suggestedAction: {
+            type: 'CONTINUE',
+          },
+        };
+      }
+
+      // Read the current HTML content
+      const currentHtmlContent = await this.fileUtil.readFileContent(chat.generatedHtmlPath);
+
+      // Read document contents for context
+      const folderPath = this.fileUtil.getMarkdownFolderPath(__dirname);
+      const markdownFiles = await this.fileUtil.readMarkdownFiles(folderPath);
+      
+      // Build document context from relevant files
+      let documentContext = '';
+      for (const filename of chat.relevantFiles) {
+        if (markdownFiles.includes(filename)) {
+          const filePath = this.fileUtil.getFilePath(folderPath, filename);
+          const content = await this.fileUtil.readFileContent(filePath);
+          documentContext += `Filename: ${filename}\nContent:\n${content}\n\n---\n\n`;
+        }
+      }
+
+      // Build conversation history (last 8 messages for context)
+      const conversationHistory = chat.messages
+        .slice(-8)
+        .map((m) => `${m.role}: ${m.content}`)
+        .join('\n');
+
+      // Generate refined HTML
+      const prompt = this.promptService.buildHtmlRefinementPrompt(
+        chat.context || 'Dashboard',
+        chat.generatedPlan || '',
+        documentContext,
+        currentHtmlContent,
+        question,
+        conversationHistory,
+      );
+
+      this.logger.debug('Generating refined HTML', { chatId: chat.id });
+
+      const acknowledgmentMessage = this.messageRepository.create({
+        content: `I understand you'd like to improve the dashboard. Let me generate an updated version based on your feedback...`,
+        role: MessageRole.ASSISTANT,
+        type: MessageType.PLAN,
+        chat,
+      });
+      chat.messages.push(acknowledgmentMessage);
+      await this.chatRepository.save(chat);
+
+      let refinedHtmlContent = await this.llm.generateContent(prompt, 'gemini-2.5-pro');
+
+      // Clean the HTML content
+      refinedHtmlContent = this.docsService.cleanHtmlContent(refinedHtmlContent);
+
+      // Save the refined HTML (overwrite the existing file)
+      await this.fileUtil.saveFile(chat.generatedHtmlPath, refinedHtmlContent);
+
+      this.logger.info('HTML dashboard refined', { 
+        chatId: chat.id, 
+        htmlPath: chat.generatedHtmlPath 
+      });
+
+      const successMessage = this.messageRepository.create({
+        content: `Perfect! I've updated your dashboard based on your feedback.\n\nThe updated dashboard has been saved to the same location:\n**${chat.generatedHtmlPath.split('/').pop()}**\n\nRefresh your browser to see the changes!\n\nNeed any more adjustments? Just let me know!`,
+        role: MessageRole.ASSISTANT,
+        type: MessageType.PLAN,
+        chat,
+      });
+      chat.messages.push(successMessage);
+      await this.chatRepository.save(chat);
 
       return {
         message: chat.messages[chat.messages.length - 1],
@@ -561,6 +662,7 @@ export class ChatService {
       relevantFiles: chat.relevantFiles,
       context: chat.context,
       generatedPlan: chat.generatedPlan,
+      generatedHtmlPath: chat.generatedHtmlPath,
       messages: chat.messages,
       createdAt: chat.createdAt,
       updatedAt: chat.updatedAt,

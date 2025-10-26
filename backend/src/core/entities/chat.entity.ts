@@ -5,6 +5,7 @@ export enum Phase {
   SUMMARY = 'SUMMARY',
   QUERY = 'QUERY',
   PLAN = 'PLAN',
+  REFINE = 'REFINE',
 }
 
 @Entity('chat')
@@ -20,6 +21,9 @@ export class Chat {
 
   @Column('text', { nullable: true })
   generatedPlan?: string;
+
+  @Column('text', { nullable: true })
+  generatedHtmlPath?: string;
 
   @Column({
     type: 'enum',
